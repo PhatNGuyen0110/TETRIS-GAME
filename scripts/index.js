@@ -9,7 +9,7 @@ const COLOR_MAPPING = [
     'purple',
     'blue',
     'cyan',
-    'yellow',
+
     'white',
 ];
 
