@@ -196,7 +196,7 @@ class Board {
     }
 
     drawCell(xAxis, yAxis, colorId) {
-        this.ctx.fillStyle = COLOR_MAPPING[colorId || COLOR_MAPPING[WHITE_COLOR_ID]];
+        this.ctx.fillStyle = COLOR_MAPPING[colorId ?? WHITE_COLOR_ID];
         this.ctx.fillRect(xAxis * BLOCK_SIZE, yAxis * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
         this.ctx.fillStyle = 'black';
         this.ctx.strokeRect(xAxis * BLOCK_SIZE, yAxis * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
@@ -215,11 +215,69 @@ class Board {
 class Brick {
     constructor(id) {
         this.id = id;
-        
+        this.layout = BRICK_LAYOUT[id];
+        this.activeIndex = 0;
+        this.colPos = 3;
+        this.rowPos = 4;
+
+    }
+    draw() {
+        for (let row = 0; row < this.layout[this.activeIndex].length; row++) {
+            for (let col = 0; col < this.layout[this.activeIndex][0].length; col++) {
+                if (this.layout[this.activeIndex][row][col] !== WHITE_COLOR_ID) {
+                    board.drawCell(col + this.colPos, row + this.rowPos, this.id);
+                }
+            }
+        }
+    }
+
+    clear() {
+        for (let row = 0; row < this.layout[this.activeIndex].length; row++) {
+            for (let col = 0; col < this.layout[this.activeIndex][0].length; col++) {
+                if (this.layout[this.activeIndex][row][col] !== WHITE_COLOR_ID) {
+                    board.drawCell(col + this.colPos, row + this.rowPos, WHITE_COLOR_ID);
+                }
+            }
+        }
+
+    }
+
+    moveLeft() {
+        this.clear();
+        this.colPos--;
+        this.draw();
+    }
+    moveRight() {
+        this.clear();
+        this.colPos++;
+        this.draw();
+    }
+    moveDown() {
+        this.clear();
+        this.rowPos++;
+        this.draw();
+    }
+
+
+    rotate() {
+        this.clear();
+        this.activeIndex = (this.activeIndex + 1) % 4;
+        this.draw();
     }
 }
+
+
+
+
+
+
+
 board = new Board(ctx);
 board.drawBoard();
-board.drawCell(1, 1, 1);
+// board.drawCell(1, 1, 1);
+brick = new Brick(0);
+brick.draw();
+//brick.moveLeft();
+brick.rotate();
 
 console.table(board.grid);
