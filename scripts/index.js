@@ -13,6 +13,8 @@ const COLOR_MAPPING = [
     'white',
 ];
 
+
+
 const BRICK_LAYOUT = [
     [
         [
@@ -178,6 +180,17 @@ const BRICK_LAYOUT = [
     ],
 ];
 
+const KEY_CODE = {
+    LEFT: 'ArrowLeft',
+    RIGHT: 'ArrowRight',
+    UP: 'ArrowUp',
+    DOWN: 'ArrowDown',
+}
+
+
+
+
+
 const WHITE_COLOR_ID = 7;
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
@@ -221,6 +234,7 @@ class Brick {
         this.rowPos = 4;
 
     }
+    // CHECK CODE HERE WHY IT CAN DRAW A BLOCK 
     draw() {
         for (let row = 0; row < this.layout[this.activeIndex].length; row++) {
             for (let col = 0; col < this.layout[this.activeIndex][0].length; col++) {
@@ -243,26 +257,51 @@ class Brick {
     }
 
     moveLeft() {
-        this.clear();
-        this.colPos--;
-        this.draw();
+        if (!this.checkCollision(this.rowPos, this.colPos - 1, this.layout[this.activeIndex])) {
+            this.clear();
+            this.colPos--;
+            this.draw();
+        }
+
     }
     moveRight() {
-        this.clear();
-        this.colPos++;
-        this.draw();
+        if (!this.checkCollision(this.rowPos, this.colPos + 1, this.layout[this.activeIndex])) {
+            this.clear();
+            this.colPos++;
+            this.draw();
+        }
     }
     moveDown() {
-        this.clear();
-        this.rowPos++;
-        this.draw();
+        if (!this.checkCollision(this.rowPos + 1, this.colPos, this.layout[this.activeIndex])) {
+            this.clear();
+            this.rowPos++;
+            this.draw();
+        }
     }
 
 
     rotate() {
-        this.clear();
-        this.activeIndex = (this.activeIndex + 1) % 4;
-        this.draw();
+        if (!this.checkCollision(this.rowPos, this.colPos, this.layout[(this.activeIndex + 1) % 4])) {
+            this.clear();
+            this.activeIndex = (this.activeIndex + 1) % 4;
+            this.draw();
+        }
+    }
+    checkCollision(nextRow, nextCol, nextLayout) {
+        //if (nextCol < 0) return true;
+
+        for (let row = 0; row < nextLayout.length; row++) {
+            for (let col = 0; col < nextLayout[0].length; col++) {
+                if (nextLayout[row][col] !== WHITE_COLOR_ID) {
+                    if ((col + nextCol) < 0 ||
+                        (col + nextCol >= COLS) ||
+                        (row + nextRow >= ROWS)
+                    ) return true;
+                }
+            }
+        }
+        return false;
+
     }
 }
 
@@ -274,10 +313,25 @@ class Brick {
 
 board = new Board(ctx);
 board.drawBoard();
-// board.drawCell(1, 1, 1);
 brick = new Brick(0);
 brick.draw();
-//brick.moveLeft();
-brick.rotate();
 
-console.table(board.grid);
+
+
+document.addEventListener("keydown", (e) => {
+    console.log({ e });
+    switch (e.code) {
+        case KEY_CODE.LEFT:
+            brick.moveLeft();
+            break;
+        case KEY_CODE.RIGHT:
+            brick.moveRight();
+            break;
+        case KEY_CODE.UP:
+            brick.rotate();
+            break;
+        case KEY_CODE.DOWN:
+            brick.moveDown();
+            break;
+    }
+})
