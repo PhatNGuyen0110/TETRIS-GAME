@@ -202,6 +202,9 @@ class Board {
     constructor(ctx) {
         this.ctx = ctx
         this.grid = this.generateWhiteBoard();
+        this.score = 0;
+        this.gameOver = false;
+        this.isPlay = false;
     }
 
     generateWhiteBoard() {
@@ -218,10 +221,44 @@ class Board {
     drawBoard() {
         for (let row = 0; row < this.grid.length; row++) {
             for (let col = 0; col < this.grid[0].length; col++) {
-                this.drawCell(col, row, WHITE_COLOR_ID);
+                this.drawCell(col, row, this.grid[row][col]);
 
             }
         }
+    }
+    handleScore(newScore) {
+        this.score += newScore;
+        document.getElementById('score').innerHTML = this.score;
+    }
+
+
+
+    handleCompleteRows() {
+        const latestGrid = board.grid.filter((row) => {
+            return row.some(col => col === WHITE_COLOR_ID);
+        });
+        const newScore = ROWS - latestGrid.length;
+        const newRow = Array.from({ length: newScore }, () => Array(COLS).fill(WHITE_COLOR_ID));
+
+        if (newScore) {
+            board.grid = [...newRow, ...latestGrid];
+            this.handleScore(newScore * 5);
+        }
+
+    }
+    handleGameOver() {
+        this.gameOver = true;
+        this.isPlay = false;
+        alert('GAME OVER ');
+    }
+
+
+    reset() {
+        this.score = 0;
+        this.grid = this.generateWhiteBoard();
+        this.gameOver = false;
+        this.drawBoard();
+        this.handleScore(0);
     }
 }
 
@@ -231,7 +268,8 @@ class Brick {
         this.layout = BRICK_LAYOUT[id];
         this.activeIndex = 0;
         this.colPos = 3;
-        this.rowPos = 4;
+        this.rowPos = -2;
+
 
     }
     // CHECK CODE HERE WHY IT CAN DRAW A BLOCK 
@@ -276,9 +314,14 @@ class Brick {
             this.clear();
             this.rowPos++;
             this.draw();
+            return;
         }
-    }
+        this.handleLand();
+        if (!board.gameOver) {
+            generateNewBrick();
+        }
 
+    }
 
     rotate() {
         if (!this.checkCollision(this.rowPos, this.colPos, this.layout[(this.activeIndex + 1) % 4])) {
@@ -292,10 +335,11 @@ class Brick {
 
         for (let row = 0; row < nextLayout.length; row++) {
             for (let col = 0; col < nextLayout[0].length; col++) {
-                if (nextLayout[row][col] !== WHITE_COLOR_ID) {
+                if (nextLayout[row][col] !== WHITE_COLOR_ID && nextRow >= 0) {
                     if ((col + nextCol) < 0 ||
                         (col + nextCol >= COLS) ||
-                        (row + nextRow >= ROWS)
+                        (row + nextRow >= ROWS) ||
+                        (board.grid[row + nextRow][col + nextCol] !== WHITE_COLOR_ID)
                     ) return true;
                 }
             }
@@ -303,35 +347,79 @@ class Brick {
         return false;
 
     }
+    handleLand() {
+
+        if (this.rowPos <= 0) {
+            board.handleGameOver();
+            return;
+        }
+
+        for (let row = 0; row < this.layout[this.activeIndex].length; row++) {
+            for (let col = 0; col < this.layout[this.activeIndex][0].length; col++) {
+                if (this.layout[this.activeIndex][row][col] !== WHITE_COLOR_ID) {
+                    board.grid[row + this.rowPos][col + this.colPos] = this.id;
+
+                }
+            }
+        }
+        board.handleCompleteRows();
+        board.drawBoard();
+
+    }
+
+
 }
 
 
 
 
+function generateNewBrick() {
+    brick = new Brick(Math.floor(Math.random() * 10) % BRICK_LAYOUT.length);
+
+}
 
 
 
 board = new Board(ctx);
 board.drawBoard();
-brick = new Brick(0);
-brick.draw();
+generateNewBrick();
+
+document.getElementById('play').addEventListener('click', () => {
+    board.reset();
+    board.isPlay = true;
+    generateNewBrick();
+
+    const refresh = setInterval(() => {
+        if (!board.gameOver) {
+            brick.moveDown();
+
+        } else {
+            clearInterval(refresh);
+        }
+
+    }, 1000);
+}
+)
 
 
 
 document.addEventListener("keydown", (e) => {
-    console.log({ e });
-    switch (e.code) {
-        case KEY_CODE.LEFT:
-            brick.moveLeft();
-            break;
-        case KEY_CODE.RIGHT:
-            brick.moveRight();
-            break;
-        case KEY_CODE.UP:
-            brick.rotate();
-            break;
-        case KEY_CODE.DOWN:
-            brick.moveDown();
-            break;
+    if (!board.gameOver && board.isPlay) {
+        console.log({ e });
+        switch (e.code) {
+            case KEY_CODE.LEFT:
+                brick.moveLeft();
+                break;
+            case KEY_CODE.RIGHT:
+                brick.moveRight();
+                break;
+            case KEY_CODE.UP:
+                brick.rotate();
+                break;
+            case KEY_CODE.DOWN:
+                brick.moveDown();
+                break;
+        }
     }
+
 })

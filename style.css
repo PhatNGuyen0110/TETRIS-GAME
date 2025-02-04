@@ -1,24 +1,29 @@
 * {
     font-family: "Press Start 2P", serif;
+    background-image: url('https://t4.ftcdn.net/jpg/03/27/22/31/360_F_327223167_6s3RXZaysJMMi0AI54z3I4ojBEhhfTdc.jpg');
+    color: aqua;
 }
 
-.container{
+.container {
     display: grid;
     grid-template-columns: 320px 200px;
     justify-content: center;
     margin-top: 100px;
 }
-.side-bar{
+
+.side-bar {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
-#board{
+
+#board {
     border: 2px solid black;
 }
-.play-btn{
+
+.play-btn {
     padding: 15px 30px;
     font-size: 17px;
-    background-color: goldenrod;
+    background-color: rgb(32, 103, 218);
     cursor: pointer;
 }
