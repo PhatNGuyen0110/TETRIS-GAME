@@ -9,12 +9,23 @@
     grid-template-columns: 320px 200px;
     justify-content: center;
     margin-top: 100px;
+
 }
+
+/* .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5%;
+    gap: 20;
+
+} */
 
 .side-bar {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    margin-bottom: 5%;
 }
 
 #board {
@@ -23,7 +34,12 @@
 
 .play-btn {
     padding: 15px 30px;
-    font-size: 17px;
-    background-color: rgb(32, 103, 218);
+    font-size: 20px;
+    /* background-color: rgb(32, 103, 218); */
+    background: linear-gradient(to right, #fe881c, #fdce1c 50%, #fe881c);
     cursor: pointer;
+}
+
+.play-btn:hover {
+    background-position: right center;
 }
